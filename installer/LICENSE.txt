@@ -1,0 +1,13 @@
+MASOOM MACRO RECORDER - END USER LICENSE TERMS
+Copyright (c) MasoomDev. All rights reserved.
+
+Please read before installing.
+
+1. Permission. You may install and use this software on computers you own or are authorized to operate.
+2. Responsible use. Do not record other people's activity, credentials, or personal information without permission. You are responsible for the macros you record, store, and run.
+3. Local recordings. Macro files may contain sensitive keyboard and mouse activity. Protect saved files and do not share them without reviewing their contents.
+4. Third-party components. This application uses Microsoft .NET. Third-party components are subject to their respective licenses.
+5. No warranty. The software is provided as-is, to the extent permitted by applicable law. Nothing in these terms excludes rights that cannot legally be excluded.
+6. Support and updates. For project information and issue reports visit https://github.com/shayanmila/MacroRecorder.
+
+By selecting "I accept" in Setup, you agree to these terms.
