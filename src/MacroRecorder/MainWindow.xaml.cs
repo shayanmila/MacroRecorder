@@ -167,6 +167,8 @@ public partial class MainWindow : Window
   Foreground=darkTheme?System.Windows.Media.Brushes.White:System.Windows.Media.Brushes.Black;
   ThemeButton.Content=darkTheme?"Light Theme":"Dark Theme";
  }
+ private void Help_Click(object sender,RoutedEventArgs e) => InfoDialog.ShowHelp(this);
+ private void About_Click(object sender,RoutedEventArgs e) => InfoDialog.ShowAbout(this);
  private void Clear_Click(object sender, RoutedEventArgs e)
  {
   if (playing || recording) return;
