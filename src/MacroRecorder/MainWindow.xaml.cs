@@ -14,6 +14,7 @@ namespace MasoomDev.MacroRecorder;
 public partial class MainWindow : Window
 {
  readonly ObservableCollection<MacroEvent> events = new();
+ bool darkTheme;
  readonly Stopwatch clock = new();
  readonly HashSet<int> activeHotkeys = new();
  readonly HashSet<int> replayKeys = new();
@@ -139,6 +140,32 @@ public partial class MainWindow : Window
    }
   }
   return NativeInput.CallNextHookEx(keyboardHook, code, msg, ptr);
+ }
+ private void DeleteSelected_Click(object sender, RoutedEventArgs e)
+ {
+  if(recording || playing || EventList.SelectedIndex<0) return;
+  int index=EventList.SelectedIndex; events.RemoveAt(index); Refresh();
+  if(events.Count>0) EventList.SelectedIndex=Math.Min(index,events.Count-1);
+ }
+ private void MoveUp_Click(object sender,RoutedEventArgs e) => MoveEvent(-1);
+ private void MoveDown_Click(object sender,RoutedEventArgs e) => MoveEvent(1);
+ void MoveEvent(int direction)
+ {
+  if(recording || playing || EventList.SelectedIndex<0) return;
+  int before=EventList.SelectedIndex, after=before+direction;
+  if(after<0 || after>=events.Count) return;
+  events.Move(before,after); EventList.SelectedIndex=after;
+  // Reassign the event timestamps monotonically to preserve selected sequence order.
+  double previous=0;
+  foreach(var item in events) { item.Time=Math.Max(previous,item.Time); previous=item.Time+0.001; }
+  EventList.Items.Refresh();
+ }
+ private void ToggleTheme_Click(object sender,RoutedEventArgs e)
+ {
+  darkTheme=!darkTheme;
+  Background=darkTheme?System.Windows.Media.Brushes.Black:System.Windows.Media.Brushes.White;
+  Foreground=darkTheme?System.Windows.Media.Brushes.White:System.Windows.Media.Brushes.Black;
+  ThemeButton.Content=darkTheme?"Light Theme":"Dark Theme";
  }
  private void Clear_Click(object sender, RoutedEventArgs e)
  {
