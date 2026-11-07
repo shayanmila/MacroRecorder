@@ -12,7 +12,7 @@ OutputDir=..\dist\installer
 OutputBaseFilename=Masoom-Macro-Recorder-{#AppVersion}-Setup
 Compression=lzma2
 SolidCompression=yes
-WizardStyle=modern
+WizardStyle=modern\nSetupIconFile=..\\src\\MacroRecorder\\Assets\\MasoomMacro.ico
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
