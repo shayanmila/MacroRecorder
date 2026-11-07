@@ -24,7 +24,7 @@ public static class InfoDialog
   DockPanel.SetDock(close,Dock.Bottom);panel.Children.Add(close);
   if(title.StartsWith("About",System.StringComparison.Ordinal))
   {
-   var links=new WrapPanel { Margin=new Thickness(0,10,0,4) };
+   var links=new WrapPanel { Margin=new Thickness(0,10,0,4,0) };
    foreach(var link in new[] { ("Website","https://masoomdev.online/apps/macro-recorder/"), ("Privacy Policy","https://masoomdev.online/apps/macro-recorder/privacy/"), ("Terms of Use","https://masoomdev.online/apps/macro-recorder/terms/") })
    {
     var url=link.Item2;
