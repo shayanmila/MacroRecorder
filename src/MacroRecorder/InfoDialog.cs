@@ -13,7 +13,7 @@ public static class InfoDialog
  public static void ShowAbout(Window owner)
  {
   Show(owner,"About — Masoom Macro Recorder",
-   "MASOOM MACRO RECORDER\n\nNative Windows desktop macro recorder\nMade by MasoomDev\n\nTechnology: C# / .NET 8 / WPF\nVersion: "+(typeof(App).Assembly.GetName().Version?.ToString() ?? "1.0.0")+"\n\nFeatures: mouse and keyboard recording, JSON save/load, repeat playback, adjustable speed, event editing and emergency hotkeys.\n\nGitHub: github.com/shayanmila/MacroRecorder\n\n© MasoomDev. All rights reserved.");
+   "MASOOM MACRO RECORDER\n\nNative Windows desktop macro recorder\nMade by MasoomDev\n\nTechnology: C# / .NET 8 / WPF\nVersion: "+(typeof(App).Assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false).OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion ?? typeof(App).Assembly.GetName().Version?.ToString(3) ?? "Unknown")+"\n\nFeatures: mouse and keyboard recording, JSON save/load, repeat playback, adjustable speed, event editing and emergency hotkeys.\n\nGitHub: github.com/shayanmila/MacroRecorder\n\n© MasoomDev. All rights reserved.");
  }
  static void Show(Window owner,string title,string content)
  {
