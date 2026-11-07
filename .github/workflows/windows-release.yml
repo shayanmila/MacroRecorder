@@ -25,7 +25,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           dotnet restore src/MacroRecorder/MacroRecorder.csproj
           if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed' }
-          dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:EnableCompressionInSingleFile=true -o dist/portable
+          dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o dist/portable
           if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
           if (-not (Test-Path 'dist/portable/MacroRecorder.exe')) { throw 'Published executable missing' }
           $bytes = (Get-ChildItem dist/portable -File | Measure-Object -Property Length -Sum).Sum
