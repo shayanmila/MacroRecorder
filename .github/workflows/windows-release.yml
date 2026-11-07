@@ -5,7 +5,7 @@ on:
       version:
         description: 'Release version (e.g. 1.0.0)'
         required: true
-        default: '1.0.0'
+        default: '1.0.6'
 jobs:
   windows:
     runs-on: windows-latest
@@ -23,6 +23,28 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+          $version = '${{ inputs.version }}'
+          if ($version -notmatch '^\d+\.\d+\.\d+
+          if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed' }
+          dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:Version=$version -p:AssemblyVersion=$version -p:FileVersion=$version -p:InformationalVersion=$version -o dist/portable
+          if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
+          if (-not (Test-Path 'dist/portable/MacroRecorder.exe')) { throw 'Published executable missing' }
+          $bytes = (Get-ChildItem dist/portable -File | Measure-Object -Property Length -Sum).Sum
+          Write-Host ("Portable output size: {0:N2} MB" -f ($bytes / 1MB))
+          Compress-Archive -Path dist/portable/* -DestinationPath "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip"
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DAppVersion=${{ inputs.version }}" installer/MacroRecorder.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag = "v${{ inputs.version }}"
+          gh release create $tag "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip" "dist/installer/Masoom-Macro-Recorder-${{ inputs.version }}-Setup.exe" --title "Masoom Macro Recorder $tag" --notes "Lightweight framework-dependent Windows portable and installer builds. Requires .NET 8 Desktop Runtime (x64)."
+) { throw 'Version must be major.minor.patch (example 1.0.6)' }
           dotnet restore src/MacroRecorder/MacroRecorder.csproj
           if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed' }
           dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o dist/portable
