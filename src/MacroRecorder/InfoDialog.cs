@@ -22,6 +22,18 @@ public static class InfoDialog
   var close=new Button { Content="Close",Width=90,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,12,0,0) };
   close.Click+=(_,_)=>window.Close();
   DockPanel.SetDock(close,Dock.Bottom);panel.Children.Add(close);
+  if(title.StartsWith("About",System.StringComparison.Ordinal))
+  {
+   var links=new WrapPanel { Margin=new Thickness(0,10,0,4) };
+   foreach(var link in new[] { ("Website","https://masoomdev.online/apps/macro-recorder/"), ("Privacy Policy","https://masoomdev.online/apps/macro-recorder/privacy/"), ("Terms of Use","https://masoomdev.online/apps/macro-recorder/terms/") })
+   {
+    var url=link.Item2;
+    var button=new Button { Content=link.Item1,Margin=new Thickness(3),Padding=new Thickness(8,5) };
+    button.Click+=(_,_)=>{ try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute=true }); } catch(System.Exception ex) { MessageBox.Show(ex.Message,"Unable to open link"); } };
+    links.Children.Add(button);
+   }
+   DockPanel.SetDock(links,Dock.Bottom);panel.Children.Add(links);
+  }
   panel.Children.Add(new ScrollViewer { VerticalScrollBarVisibility=ScrollBarVisibility.Auto,Content=new TextBlock { Text=content,TextWrapping=TextWrapping.Wrap,FontFamily=new FontFamily("Segoe UI"),FontSize=14,Foreground=Brushes.Black } });
   window.Content=panel;window.ShowDialog();
  }
