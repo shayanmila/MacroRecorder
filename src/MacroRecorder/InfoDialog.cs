@@ -24,11 +24,11 @@ public static class InfoDialog
   DockPanel.SetDock(close,Dock.Bottom);panel.Children.Add(close);
   if(title.StartsWith("About",System.StringComparison.Ordinal))
   {
-   var links=new WrapPanel { Margin=new Thickness(0,10,0,4,0) };
+   var links=new WrapPanel { Margin=new Thickness(0,10,0,4) };
    foreach(var link in new[] { ("Website","https://masoomdev.online/apps/macro-recorder/"), ("Privacy Policy","https://masoomdev.online/apps/macro-recorder/privacy/"), ("Terms of Use","https://masoomdev.online/apps/macro-recorder/terms/") })
    {
     var url=link.Item2;
-    var button=new Button { Content=link.Item1,Margin=new Thickness(3),Padding=new Thickness(8,5) };
+    var button=new Button { Content=link.Item1,Margin=new Thickness(3),Padding=new Thickness(8,5,8,5) };
     button.Click+=(_,_)=>{ try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute=true }); } catch(System.Exception ex) { MessageBox.Show(ex.Message,"Unable to open link"); } };
     links.Children.Add(button);
    }
