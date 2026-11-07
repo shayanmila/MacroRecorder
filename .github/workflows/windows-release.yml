@@ -1,0 +1,35 @@
+name: Windows Release (Manual Only)
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish portable executable
+        shell: pwsh
+        run: |
+          dotnet restore src/MacroRecorder/MacroRecorder.csproj
+          dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist/portable
+          Compress-Archive -Path dist/portable/* -DestinationPath "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip"
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DAppVersion=${{ inputs.version }}" installer/MacroRecorder.iss
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag = "v${{ inputs.version }}"
+          gh release create $tag "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip" "dist/installer/Masoom-Macro-Recorder-${{ inputs.version }}-Setup.exe" --title "Masoom Macro Recorder $tag" --notes "Windows portable and installer builds."
