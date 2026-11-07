@@ -8,6 +8,7 @@
     <AssemblyName>MacroRecorder</AssemblyName>
     <RootNamespace>MasoomDev.MacroRecorder</RootNamespace>
     <Version>1.0.0</Version>
-    <ApplicationManifest>app.manifest</ApplicationManifest>\n    <ApplicationIcon>Assets\\MasoomMacro.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\MasoomMacro.ico</ApplicationIcon>
   </PropertyGroup>
 </Project>
