@@ -16,7 +16,10 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Generate branded Windows icon\n        shell: pwsh\n        run: ./scripts/Generate-Icon.ps1\n      - name: Publish portable executable
+      - name: Generate branded Windows icon
+        shell: pwsh
+        run: ./scripts/Generate-Icon.ps1
+      - name: Publish portable executable
         shell: pwsh
         run: |
           dotnet restore src/MacroRecorder/MacroRecorder.csproj
