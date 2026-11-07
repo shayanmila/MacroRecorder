@@ -26,6 +26,8 @@ public partial class MainWindow : Window
  volatile bool recording, playing, paused;
  long lastMovementTick;
  int lastX = int.MinValue, lastY = int.MinValue;
+ long lastUiRefreshTick;
+ bool captureMouseMovement;
 
  public MainWindow() { InitializeComponent(); EventList.ItemsSource = events; }
  void Status(string value) => Dispatcher.BeginInvoke(() => StatusText.Text = value);
@@ -42,13 +44,17 @@ public partial class MainWindow : Window
  {
   if (!recording) return;
   if (events.Count >= 100000) { StopRecording(); MessageBox.Show("Recording stopped at 100,000 events."); return; }
-  events.Add(item); Refresh();
+  events.Add(item);
+  long tick=Stopwatch.GetTimestamp();
+  if(item.Type != "mouse_move" || (tick-lastUiRefreshTick)*1000.0/Stopwatch.Frequency>=120)
+  { lastUiRefreshTick=tick; Refresh(); }
  }
  private void StartRecording_Click(object sender, RoutedEventArgs e)
  {
   if (recording || playing) return;
   if (MouseCheck.IsChecked != true && KeyboardCheck.IsChecked != true) { MessageBox.Show("Enable mouse or keyboard recording."); return; }
-  events.Clear(); activeHotkeys.Clear(); lastX = int.MinValue; lastY = int.MinValue; lastMovementTick = 0;
+  events.Clear(); activeHotkeys.Clear(); lastX = int.MinValue; lastY = int.MinValue; lastMovementTick = 0; lastUiRefreshTick=0;
+  captureMouseMovement=MouseCheck.IsChecked == true && MovementCheck.IsChecked == true;
   mouseCallback = OnMouse; keyboardCallback = OnKeyboard;
   try
   {
@@ -74,6 +80,8 @@ public partial class MainWindow : Window
  }
  IntPtr OnMouse(int code, IntPtr msg, IntPtr ptr)
  {
+  try
+  {
   if (code >= 0 && recording)
   {
    var data = Marshal.PtrToStructure<NativeInput.MSLLHOOKSTRUCT>(ptr);
@@ -81,10 +89,10 @@ public partial class MainWindow : Window
    {
     double t = clock.Elapsed.TotalSeconds;
     int m = (int)msg;
-    if (m == NativeInput.WM_MOUSEMOVE && MovementCheck.IsChecked == true)
+    if (m == NativeInput.WM_MOUSEMOVE && captureMouseMovement)
     {
      long tick = Stopwatch.GetTimestamp();
-     if ((tick - lastMovementTick) * 1000.0 / Stopwatch.Frequency >= 30 && Math.Abs(data.pt.X - lastX) + Math.Abs(data.pt.Y - lastY) >= 3)
+     if ((tick - lastMovementTick) * 1000.0 / Stopwatch.Frequency >= 30 && (lastX == int.MinValue || lastY == int.MinValue || Math.Abs((long)data.pt.X - lastX) + Math.Abs((long)data.pt.Y - lastY) >= 3))
      {
       lastMovementTick = tick; lastX = data.pt.X; lastY = data.pt.Y;
       AddEvent(new MacroEvent { Time = t, Type = "mouse_move", X = data.pt.X, Y = data.pt.Y });
@@ -109,10 +117,14 @@ public partial class MainWindow : Window
     }
    }
   }
+  }
+  catch(Exception ex) { LogHookError(ex); }
   return NativeInput.CallNextHookEx(mouseHook, code, msg, ptr);
  }
  IntPtr OnKeyboard(int code, IntPtr msg, IntPtr ptr)
  {
+  try
+  {
   if (code >= 0)
   {
    var data = Marshal.PtrToStructure<NativeInput.KBDLLHOOKSTRUCT>(ptr);
@@ -139,7 +151,19 @@ public partial class MainWindow : Window
     }
    }
   }
+  }
+  catch(Exception ex) { LogHookError(ex); }
   return NativeInput.CallNextHookEx(keyboardHook, code, msg, ptr);
+ }
+ void LogHookError(Exception ex)
+ {
+  try
+  {
+   string dir=System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"MasoomDev","MacroRecorder");
+   System.IO.Directory.CreateDirectory(dir);
+   System.IO.File.AppendAllText(System.IO.Path.Combine(dir,"recording-error.log"),$"[{DateTimeOffset.Now:O}] {ex}\r\n");
+  }
+  catch { }
  }
  private void DeleteSelected_Click(object sender, RoutedEventArgs e)
  {
