@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. 1.0.6)'
+        description: 'Release version (1.0.7 or v1.0.7)'
         required: true
-        default: '1.0.6'
+        default: '1.0.7'
 jobs:
   windows:
     runs-on: windows-latest
@@ -16,6 +16,16 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Normalize and validate release version
+        shell: pwsh
+        env:
+          ACTION_VERSION: ${{ inputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = $env:ACTION_VERSION.Trim() -replace '^[vV]', ''
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Version must be 1.0.7 or v1.0.7 format' }
+          "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+          Write-Host "Building version $version (tag v$version)"
       - name: Generate branded Windows icon
         shell: pwsh
         run: ./scripts/Generate-Icon.ps1
@@ -23,8 +33,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $version = '${{ inputs.version }}'
-          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Version must be major.minor.patch' }
+          $version = $env:RELEASE_VERSION
           dotnet restore src/MacroRecorder/MacroRecorder.csproj
           if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed' }
           dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:Version=$version -p:AssemblyVersion=$version -p:FileVersion=$version -p:InformationalVersion=$version -o dist/portable
@@ -32,16 +41,21 @@ jobs:
           if (-not (Test-Path 'dist/portable/MacroRecorder.exe')) { throw 'Published executable missing' }
           $bytes = (Get-ChildItem dist/portable -File | Measure-Object -Property Length -Sum).Sum
           Write-Host ("Portable output size: {0:N2} MB" -f ($bytes / 1MB))
-          Compress-Archive -Path dist/portable/* -DestinationPath "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip"
+          Compress-Archive -Path dist/portable/* -DestinationPath "Masoom-Macro-Recorder-$version-Portable-win-x64.zip"
       - name: Build Windows installer
         shell: pwsh
         run: |
-          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DAppVersion=${{ inputs.version }}" installer/MacroRecorder.iss
+          $ErrorActionPreference = 'Stop'
+          $version = $env:RELEASE_VERSION
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DAppVersion=$version" installer/MacroRecorder.iss
           if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          $tag = "v${{ inputs.version }}"
-          gh release create $tag "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip" "dist/installer/Masoom-Macro-Recorder-${{ inputs.version }}-Setup.exe" --title "Masoom Macro Recorder $tag" --notes "Lightweight Windows portable and installer builds. Requires .NET 8 Desktop Runtime (x64)."
+          $ErrorActionPreference = 'Stop'
+          $version = $env:RELEASE_VERSION
+          $tag = "v$version"
+          gh release create $tag "Masoom-Macro-Recorder-$version-Portable-win-x64.zip" "dist/installer/Masoom-Macro-Recorder-$version-Setup.exe" --title "Masoom Macro Recorder $tag" --notes "Lightweight Windows portable and installer builds. Requires .NET 8 Desktop Runtime (x64)."
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub release failed' }
