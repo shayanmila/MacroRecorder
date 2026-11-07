@@ -25,9 +25,11 @@ jobs:
           $ErrorActionPreference = 'Stop'
           dotnet restore src/MacroRecorder/MacroRecorder.csproj
           if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed' }
-          dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist/portable
+          dotnet publish src/MacroRecorder/MacroRecorder.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:EnableCompressionInSingleFile=true -o dist/portable
           if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
           if (-not (Test-Path 'dist/portable/MacroRecorder.exe')) { throw 'Published executable missing' }
+          $bytes = (Get-ChildItem dist/portable -File | Measure-Object -Property Length -Sum).Sum
+          Write-Host ("Portable output size: {0:N2} MB" -f ($bytes / 1MB))
           Compress-Archive -Path dist/portable/* -DestinationPath "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip"
       - name: Build Windows installer
         shell: pwsh
@@ -39,4 +41,4 @@ jobs:
         shell: pwsh
         run: |
           $tag = "v${{ inputs.version }}"
-          gh release create $tag "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip" "dist/installer/Masoom-Macro-Recorder-${{ inputs.version }}-Setup.exe" --title "Masoom Macro Recorder $tag" --notes "Windows portable and installer builds."
+          gh release create $tag "Masoom-Macro-Recorder-${{ inputs.version }}-Portable-win-x64.zip" "dist/installer/Masoom-Macro-Recorder-${{ inputs.version }}-Setup.exe" --title "Masoom Macro Recorder $tag" --notes "Lightweight framework-dependent Windows portable and installer builds. Requires .NET 8 Desktop Runtime (x64)."
