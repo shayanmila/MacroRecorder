@@ -1,0 +1,8 @@
+<Application x:Class="MasoomDev.MacroRecorder.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="MainWindow.xaml">
+ <Application.Resources>
+  <SolidColorBrush x:Key="Accent" Color="#7540AC"/>
+  <Style TargetType="Button"><Setter Property="Margin" Value="4"/><Setter Property="Padding" Value="13,9"/><Setter Property="MinHeight" Value="38"/><Setter Property="Background" Value="#EEE6F7"/><Setter Property="BorderBrush" Value="#CBB8DF"/><Setter Property="Foreground" Value="#34233E"/></Style>
+  <Style TargetType="GroupBox"><Setter Property="Margin" Value="0,9"/><Setter Property="Padding" Value="10"/><Setter Property="BorderBrush" Value="#D7D6DF"/></Style>
+  <Style TargetType="TextBox"><Setter Property="Padding" Value="7"/><Setter Property="Margin" Value="4"/></Style>
+ </Application.Resources>
+</Application>
