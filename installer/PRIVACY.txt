@@ -1,0 +1,21 @@
+MASOOM MACRO RECORDER - PRIVACY INFORMATION
+Last updated: 7 November 2026
+
+Masoom Macro Recorder is a Windows application that records keyboard and mouse activity at your request.
+
+WHAT IS RECORDED
+When recording is enabled, the application may capture keystrokes, pointer movement, mouse clicks, and timing. This can include sensitive information entered while recording.
+
+WHERE DATA IS STORED
+Recorded events are held in application memory. When you choose Save, they are written to a JSON file at the location you select. Diagnostic logs may be written under your Windows LocalAppData folder if an error occurs.
+
+NETWORK AND THIRD PARTIES
+The current application source does not implement an account, cloud synchronization, or an upload of recorded events. This statement describes the current application code; it does not cover Windows, .NET, or third-party software running on your computer.
+
+YOUR CHOICES
+You control when recording starts and stops, which input categories to record, and whether to save or delete your local files. Avoid recording passwords, payment details, or private conversations.
+
+PROJECT AND QUESTIONS
+https://github.com/shayanmila/MacroRecorder
+
+This notice should be reviewed by the publisher before public distribution and updated if features or data handling change.
